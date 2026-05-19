@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  cpf       String   @unique
+  birthDate DateTime
+  gender    String
+  phone     String
+  email     String   @unique
+  city      String
+  password  String
+  role      Role     @default(ATHLETE)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Ticket {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      String
+  shirtSize     String
+  paymentStatus PaymentStatus @default(PENDING)
+  amount        Float
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  payment       Payment?
+
+  @@index([userId])
+  @@index([paymentStatus])
+  @@map("tickets")
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  ticketId      String    @unique
+  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  gateway       String    @default("asaas")
+  transactionId String
+  status        String
+  qrCode        String
+  payload       String?
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([transactionId])
+  @@index([status])
+  @@map("payments")
+}
+
+enum Role {
+  ATHLETE
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUSED
+}
