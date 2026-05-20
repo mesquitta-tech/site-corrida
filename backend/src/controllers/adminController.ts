@@ -1,5 +1,9 @@
 import { Request, Response } from 'express'
-import { prisma } from '../prisma'
+
+
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export const getAllTickets = async (req: Request, res: Response) => {
   try {
@@ -82,7 +86,7 @@ export const exportTicketsCSV = async (req: Request, res: Response) => {
 
     const rows = [
       ['Nome','CPF','Email','Telefone','Cidade','Categoria','Camisa','Status','Valor','Data Compra','Data Pagamento'],
-      ...tickets.map(t => [
+      ...tickets.map((t: any) => [
         `"${t.user.name}"`, t.user.cpf, t.user.email, t.user.phone, `"${t.user.city}"`,
         t.category, t.shirtSize,
         t.paymentStatus === 'PAID' ? 'PAGO' : 'PENDENTE',
