@@ -38,9 +38,9 @@ app.use(securityLog) // Log de atividades suspeitas
 // ========== CORS ==========
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-  ? process.env.FRONTEND_URL || 'https://seudominio.com'
+  ? process.env.FRONTEND_URL || 'https://corrida-superacao.vercel.app'
   : 'http://localhost:5173',
-  credentials: true,
+  credentials: true, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
