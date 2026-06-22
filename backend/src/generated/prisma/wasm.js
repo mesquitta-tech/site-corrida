@@ -108,13 +108,50 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  date: 'date',
+  location: 'location',
+  city: 'city',
+  state: 'state',
+  maxParticipants: 'maxParticipants',
+  regulationUrl: 'regulationUrl',
+  registrationStart: 'registrationStart',
+  registrationEnd: 'registrationEnd',
+  isActive: 'isActive',
+  hasShirts: 'hasShirts',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  raceId: 'raceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShirtSizeScalarFieldEnum = {
+  id: 'id',
+  size: 'size',
+  quantity: 'quantity',
+  raceId: 'raceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.TicketScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  category: 'category',
+  raceId: 'raceId',
+  categoryId: 'categoryId',
   shirtSize: 'shirtSize',
-  paymentStatus: 'paymentStatus',
   amount: 'amount',
+  paymentStatus: 'paymentStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -122,13 +159,14 @@ exports.Prisma.TicketScalarFieldEnum = {
 exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   ticketId: 'ticketId',
-  gateway: 'gateway',
   transactionId: 'transactionId',
-  status: 'status',
   qrCode: 'qrCode',
   payload: 'payload',
+  status: 'status',
+  gateway: 'gateway',
   paidAt: 'paidAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -146,18 +184,21 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 exports.Role = exports.$Enums.Role = {
-  ATHLETE: 'ATHLETE',
-  ADMIN: 'ADMIN'
+  ADMIN: 'ADMIN',
+  ATHLETE: 'ATHLETE'
 };
 
 exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   PENDING: 'PENDING',
   PAID: 'PAID',
-  REFUSED: 'REFUSED'
+  CANCELLED: 'CANCELLED'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Race: 'Race',
+  Category: 'Category',
+  ShirtSize: 'ShirtSize',
   Ticket: 'Ticket',
   Payment: 'Payment'
 };
@@ -200,6 +241,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -208,13 +250,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  name      String\n  cpf       String   @unique\n  birthDate DateTime\n  gender    String\n  phone     String\n  email     String   @unique\n  city      String\n  password  String\n  role      Role     @default(ATHLETE)\n  tickets   Ticket[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map(\"users\")\n}\n\nmodel Ticket {\n  id            String        @id @default(cuid())\n  userId        String\n  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)\n  category      String\n  shirtSize     String\n  paymentStatus PaymentStatus @default(PENDING)\n  amount        Float\n  createdAt     DateTime      @default(now())\n  updatedAt     DateTime      @updatedAt\n  payment       Payment?\n\n  @@index([userId])\n  @@index([paymentStatus])\n  @@map(\"tickets\")\n}\n\nmodel Payment {\n  id            String    @id @default(cuid())\n  ticketId      String    @unique\n  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)\n  gateway       String    @default(\"asaas\")\n  transactionId String\n  status        String\n  qrCode        String\n  payload       String?\n  paidAt        DateTime?\n  createdAt     DateTime  @default(now())\n\n  @@index([transactionId])\n  @@index([status])\n  @@map(\"payments\")\n}\n\nenum Role {\n  ATHLETE\n  ADMIN\n}\n\nenum PaymentStatus {\n  PENDING\n  PAID\n  REFUSED\n}\n",
-  "inlineSchemaHash": "5b7a16db6c5edb2a9245007a19e7b4b00a27bbec25b5d16fb5f6a0ac6fd5e1fb",
+  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\nenum Role {\n  ADMIN\n  ATHLETE\n}\n\nenum PaymentStatus {\n  PENDING\n  PAID\n  CANCELLED\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  name      String\n  cpf       String   @unique\n  birthDate DateTime\n  gender    String\n  phone     String\n  email     String   @unique\n  city      String\n  password  String\n  role      Role     @default(ATHLETE)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  tickets   Ticket[]\n\n  @@map(\"users\")\n}\n\nmodel Race {\n  id                String      @id @default(uuid())\n  name              String\n  description       String\n  date              DateTime\n  location          String\n  city              String // Rígido / Obrigatório\n  state             String // Rígido / Obrigatório\n  maxParticipants   Int\n  regulationUrl     String? // Opcional (nem toda corrida tem site com regulamento)\n  registrationStart DateTime // Rígido / Obrigatório\n  registrationEnd   DateTime // Rígido / Obrigatório\n  isActive          Boolean     @default(true)\n  hasShirts         Boolean     @default(false)\n  createdAt         DateTime    @default(now())\n  updatedAt         DateTime    @updatedAt\n  categories        Category[]\n  shirtSizes        ShirtSize[]\n  tickets           Ticket[]\n\n  @@map(\"races\")\n}\n\nmodel Category {\n  id        String   @id @default(uuid())\n  name      String\n  price     Float\n  raceId    String\n  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)\n  tickets   Ticket[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map(\"race_categories\")\n}\n\nmodel ShirtSize {\n  id        String   @id @default(uuid())\n  size      String // Ex: \"P\", \"M\", \"G\", \"GG\"\n  quantity  Int // Estoque disponível\n  raceId    String\n  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map(\"shirt_sizes\")\n}\n\nmodel Ticket {\n  id            String        @id @default(uuid())\n  userId        String\n  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)\n  raceId        String\n  race          Race          @relation(fields: [raceId], references: [id], onDelete: Cascade)\n  categoryId    String\n  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)\n  shirtSize     String?\n  amount        Float\n  paymentStatus PaymentStatus @default(PENDING)\n  createdAt     DateTime      @default(now())\n  updatedAt     DateTime      @updatedAt\n  payment       Payment?\n\n  @@map(\"tickets\") // <-- Força o Prisma a vincular este modelo à tabela \"tickets\" no banco\n}\n\nmodel Payment {\n  id            String    @id @default(uuid())\n  ticketId      String    @unique\n  ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)\n  transactionId String    @unique\n  qrCode        String\n  payload       String\n  status        String\n  gateway       String\n  paidAt        DateTime?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n\n  @@map(\"payments\") // <-- Força o Prisma a vincular este modelo à tabela \"payments\" no banco\n}\n",
+  "inlineSchemaHash": "f3fc1b3786913e6f6aaea520bbad881f43cd0933607ddb02b451a1e9ced51ca2",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cpf\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"birthDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"tickets\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"TicketToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"users\"},\"Ticket\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"TicketToUser\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shirtSize\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"paymentStatus\",\"kind\":\"enum\",\"type\":\"PaymentStatus\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"payment\",\"kind\":\"object\",\"type\":\"Payment\",\"relationName\":\"PaymentToTicket\"}],\"dbName\":\"tickets\"},\"Payment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticketId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticket\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"PaymentToTicket\"},{\"name\":\"gateway\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transactionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"qrCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"paidAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"payments\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cpf\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"birthDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"tickets\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"TicketToUser\"}],\"dbName\":\"users\"},\"Race\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"maxParticipants\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"regulationUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"registrationStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"registrationEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"hasShirts\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"categories\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryToRace\"},{\"name\":\"shirtSizes\",\"kind\":\"object\",\"type\":\"ShirtSize\",\"relationName\":\"RaceToShirtSize\"},{\"name\":\"tickets\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"RaceToTicket\"}],\"dbName\":\"races\"},\"Category\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"raceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"race\",\"kind\":\"object\",\"type\":\"Race\",\"relationName\":\"CategoryToRace\"},{\"name\":\"tickets\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"CategoryToTicket\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"race_categories\"},\"ShirtSize\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"raceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"race\",\"kind\":\"object\",\"type\":\"Race\",\"relationName\":\"RaceToShirtSize\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"shirt_sizes\"},\"Ticket\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"TicketToUser\"},{\"name\":\"raceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"race\",\"kind\":\"object\",\"type\":\"Race\",\"relationName\":\"RaceToTicket\"},{\"name\":\"categoryId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryToTicket\"},{\"name\":\"shirtSize\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"paymentStatus\",\"kind\":\"enum\",\"type\":\"PaymentStatus\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"payment\",\"kind\":\"object\",\"type\":\"Payment\",\"relationName\":\"PaymentToTicket\"}],\"dbName\":\"tickets\"},\"Payment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticketId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticket\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"PaymentToTicket\"},{\"name\":\"transactionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"qrCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gateway\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"paidAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"payments\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

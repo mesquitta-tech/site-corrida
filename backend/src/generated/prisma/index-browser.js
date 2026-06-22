@@ -136,13 +136,50 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  date: 'date',
+  location: 'location',
+  city: 'city',
+  state: 'state',
+  maxParticipants: 'maxParticipants',
+  regulationUrl: 'regulationUrl',
+  registrationStart: 'registrationStart',
+  registrationEnd: 'registrationEnd',
+  isActive: 'isActive',
+  hasShirts: 'hasShirts',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  raceId: 'raceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShirtSizeScalarFieldEnum = {
+  id: 'id',
+  size: 'size',
+  quantity: 'quantity',
+  raceId: 'raceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.TicketScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  category: 'category',
+  raceId: 'raceId',
+  categoryId: 'categoryId',
   shirtSize: 'shirtSize',
-  paymentStatus: 'paymentStatus',
   amount: 'amount',
+  paymentStatus: 'paymentStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -150,13 +187,14 @@ exports.Prisma.TicketScalarFieldEnum = {
 exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   ticketId: 'ticketId',
-  gateway: 'gateway',
   transactionId: 'transactionId',
-  status: 'status',
   qrCode: 'qrCode',
   payload: 'payload',
+  status: 'status',
+  gateway: 'gateway',
   paidAt: 'paidAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -174,18 +212,21 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 exports.Role = exports.$Enums.Role = {
-  ATHLETE: 'ATHLETE',
-  ADMIN: 'ADMIN'
+  ADMIN: 'ADMIN',
+  ATHLETE: 'ATHLETE'
 };
 
 exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   PENDING: 'PENDING',
   PAID: 'PAID',
-  REFUSED: 'REFUSED'
+  CANCELLED: 'CANCELLED'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Race: 'Race',
+  Category: 'Category',
+  ShirtSize: 'ShirtSize',
   Ticket: 'Ticket',
   Payment: 'Payment'
 };

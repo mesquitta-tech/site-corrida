@@ -7,6 +7,9 @@ import Login         from './pages/Login'
 import Dashboard     from './pages/Dashboard'
 import PurchaseTicket from './pages/PurchaseTicket'
 import AdminPanel    from './pages/AdminPanel'
+import CreateRace from './pages/CreateRace'
+import EditRace from './pages/EditRace'
+
 
 function PrivateRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, loading } = useAuth()
@@ -32,6 +35,9 @@ function AppRoutes() {
       <Route path="/dashboard"      element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/purchase-ticket" element={<PrivateRoute><PurchaseTicket /></PrivateRoute>} />
       <Route path="/admin"          element={<PrivateRoute adminOnly><AdminPanel /></PrivateRoute>} />
+      <Route path="/admin/criar-corrida" element={<CreateRace />} />
+      <Route path="/admin/editar-corrida/:id" element={<PrivateRoute adminOnly><EditRace /></PrivateRoute>} />
+
     </Routes>
   )
 }

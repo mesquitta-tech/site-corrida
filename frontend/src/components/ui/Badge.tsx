@@ -1,5 +1,11 @@
 type Status = 'PAID' | 'PENDING' | 'REFUSED'
 
+// Adicione a interface com customText opcional
+interface BadgeProps {
+  status: Status
+  customText?: string  // ← nova prop
+}
+
 const config: Record<Status, { cls: string; label: string; dot: string }> = {
   PAID:    { cls: 'badge-paid',    label: 'Pago',     dot: 'bg-emerald-400' },
   PENDING: { cls: 'badge-pending', label: 'Pendente', dot: 'bg-amber-400'   },
@@ -7,12 +13,16 @@ const config: Record<Status, { cls: string; label: string; dot: string }> = {
              label: 'Recusado',   dot: 'bg-red-400'   }
 }
 
-export default function Badge({ status }: { status: Status }) {
+export default function Badge({ status, customText }: BadgeProps) {
   const { cls, label, dot } = config[status]
+  
+  // Se customText foi fornecido, usa ele, senão usa o label padrão
+  const displayText = customText || label
+  
   return (
     <span className={cls}>
       <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
+      {displayText}
     </span>
   )
 }

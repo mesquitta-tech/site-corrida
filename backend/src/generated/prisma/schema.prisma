@@ -1,15 +1,26 @@
-generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+enum Role {
+  ADMIN
+  ATHLETE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   name      String
   cpf       String   @unique
   birthDate DateTime
@@ -19,54 +30,91 @@ model User {
   city      String
   password  String
   role      Role     @default(ATHLETE)
-  tickets   Ticket[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tickets   Ticket[]
 
   @@map("users")
 }
 
+model Race {
+  id                String      @id @default(uuid())
+  name              String
+  description       String
+  date              DateTime
+  location          String
+  city              String // Rígido / Obrigatório
+  state             String // Rígido / Obrigatório
+  maxParticipants   Int
+  regulationUrl     String? // Opcional (nem toda corrida tem site com regulamento)
+  registrationStart DateTime // Rígido / Obrigatório
+  registrationEnd   DateTime // Rígido / Obrigatório
+  isActive          Boolean     @default(true)
+  hasShirts         Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  categories        Category[]
+  shirtSizes        ShirtSize[]
+  tickets           Ticket[]
+
+  @@map("races")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  price     Float
+  raceId    String
+  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("race_categories")
+}
+
+model ShirtSize {
+  id        String   @id @default(uuid())
+  size      String // Ex: "P", "M", "G", "GG"
+  quantity  Int // Estoque disponível
+  raceId    String
+  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shirt_sizes")
+}
+
 model Ticket {
-  id            String        @id @default(cuid())
+  id            String        @id @default(uuid())
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category      String
-  shirtSize     String
-  paymentStatus PaymentStatus @default(PENDING)
+  raceId        String
+  race          Race          @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  shirtSize     String?
   amount        Float
+  paymentStatus PaymentStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   payment       Payment?
 
-  @@index([userId])
-  @@index([paymentStatus])
-  @@map("tickets")
+  @@map("tickets") // <-- Força o Prisma a vincular este modelo à tabela "tickets" no banco
 }
 
 model Payment {
-  id            String    @id @default(cuid())
+  id            String    @id @default(uuid())
   ticketId      String    @unique
   ticket        Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  gateway       String    @default("asaas")
-  transactionId String
-  status        String
+  transactionId String    @unique
   qrCode        String
-  payload       String?
+  payload       String
+  status        String
+  gateway       String
   paidAt        DateTime?
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@index([transactionId])
-  @@index([status])
-  @@map("payments")
-}
-
-enum Role {
-  ATHLETE
-  ADMIN
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  REFUSED
+  @@map("payments") // <-- Força o Prisma a vincular este modelo à tabela "payments" no banco
 }
