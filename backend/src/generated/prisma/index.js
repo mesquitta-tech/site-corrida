@@ -214,7 +214,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/mesquita/projetos DEV/spa corrida/corrida-tickets/backend/src/generated/prisma",
+      "value": "/home/mesquita/projetos_DEV/spa corrida/corrida-tickets/backend/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -228,7 +228,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/mesquita/projetos DEV/spa corrida/corrida-tickets/backend/prisma/schema.prisma",
+    "sourceFilePath": "/home/mesquita/projetos_DEV/spa corrida/corrida-tickets/backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
