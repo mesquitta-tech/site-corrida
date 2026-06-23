@@ -253,8 +253,8 @@ export const updateRace = async (req: Request, res: Response) => {
 
     // Atualizar categorias (substituir)
     if (categories && Array.isArray(categories)) {
-      await prisma.category.deleteMany({ where: { raceId: id } })
-      await prisma.category.createMany({
+      await prisma.raceCategory.deleteMany({ where: { raceId: id } })
+      await prisma.raceCategory.createMany({
         data: categories.map((cat: any) => ({
           raceId: id,
           name: cat.name,
@@ -299,7 +299,7 @@ export const deleteRace = async (req: Request, res: Response) => {
       await prisma.race.update({ where: { id }, data: { isActive: false } })
       res.json({ message: 'Corrida desativada (possui inscrições vinculadas)' })
     } else {
-      await prisma.category.deleteMany({ where: { raceId: id } })
+      await prisma.raceCategory.deleteMany({ where: { raceId: id } })
       await prisma.shirtSize.deleteMany({ where: { raceId: id } })
       await prisma.race.delete({ where: { id } })
       res.json({ message: 'Corrida excluída com sucesso' })
@@ -335,8 +335,11 @@ export const getRaceStats = async (req: Request, res: Response) => {
       }),
     ])
 
-    const categories = await prisma.category.findMany({ where: { raceId: id } })
-    const categoryMap = new Map(categories.map(c => [c.id, c.name]))
+    const categories = await prisma.raceCategory.findMany({ where: { raceId: id } })
+    // const categoryMap = new Map(categories.map(c => [c.id, c.name]))
+    const categoryMap = new Map(categories.map((c: { id: string; name: string }) => [c.id, c.name]))
+
+
 
     const formattedBreakdown = categoryBreakdown.map(b => ({
       categoryId: b.categoryId,

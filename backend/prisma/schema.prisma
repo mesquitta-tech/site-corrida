@@ -37,6 +37,20 @@ model User {
   @@map("users")
 }
 
+model RaceCategory {
+  id        String   @id @default(uuid())
+  name      String   
+  price     Float
+  raceId    String
+  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("race_categories")
+}
+
+
 model Race {
   id                String      @id @default(uuid())
   name              String
@@ -53,24 +67,11 @@ model Race {
   hasShirts         Boolean     @default(false)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
-  categories        Category[]
+  categories        RaceCategory[]
   shirtSizes        ShirtSize[]
   tickets           Ticket[]
   
   @@map("races")
-}
-
-model Category {
-  id        String   @id @default(uuid())
-  name      String   
-  price     Float
-  raceId    String
-  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
-  tickets   Ticket[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("race_categories")
 }
 
 model ShirtSize {
@@ -92,7 +93,7 @@ model Ticket {
   raceId        String
   race          Race          @relation(fields: [raceId], references: [id], onDelete: Cascade)
   categoryId    String
-  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category      RaceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   shirtSize     String?
   amount        Float
   paymentStatus PaymentStatus @default(PENDING)

@@ -11,6 +11,7 @@ import {
   validateName,
   sanitizeString
 } from '../middlewares/security'
+import { authMiddleware } from '../middlewares/auth'
 
 const router = Router()
 
@@ -157,21 +158,28 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Erro interno no servidor' })
   }
 })
-
-// Rota para buscar usuário atual (protegida)
-router.get('/me', async (req, res) => {
+// Rota para buscar usuário atual (protegida com authMiddleware)
+router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1]
-    
-    if (!token) {
-      return res.status(401).json({ error: 'Token não fornecido' })
+    // req.userId é definido pelo authMiddleware
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true
+      }
+    })
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' })
     }
-    
-    // Verificar token (você precisa implementar verifyToken)
-    // Por enquanto, retorna erro
-    res.status(501).json({ error: 'Implementação pendente' })
+
+    res.json(user)
   } catch (error) {
-    res.status(500).json({ error: 'Erro interno' })
+    console.error('Erro ao buscar usuário:', error)
+    res.status(500).json({ error: 'Erro interno ao buscar usuário' })
   }
 })
 
