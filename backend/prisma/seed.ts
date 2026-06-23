@@ -26,6 +26,7 @@ async function main() {
         role: 'ADMIN'
       }
     })
+    
     console.log('✅ Usuário Admin criado: admin@corrida.com / admin123')
   } else {
     adminUser = adminExists
