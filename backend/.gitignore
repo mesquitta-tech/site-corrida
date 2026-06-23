@@ -4,4 +4,4 @@ dist/
 .env.production
 *.log
 .DS_Store
-**prisma/seed.ts
+**/prisma/seed.ts
