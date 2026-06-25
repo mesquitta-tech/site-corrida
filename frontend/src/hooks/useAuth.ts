@@ -85,8 +85,8 @@ export function useAuth() {
     // 🔥 VALIDA O TOKEN COM O BACKEND
     const validateToken = async () => {
       try {
-        console.log('🔍 Validando token com /auth/me...')
-        const response = await api.get('/auth/me', {
+        console.log('🔍 Validando token com /api/auth/me...')
+        const response = await api.get('/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         })
         
