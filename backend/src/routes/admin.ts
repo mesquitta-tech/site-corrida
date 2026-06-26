@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware, adminMiddleware } from '../middlewares/auth'
+import { authMiddleware,adminMiddleware } from '../middlewares/auth'
 import { getAllTickets, approvePayment, getStats, exportTicketsCSV } from '../controllers/adminController'
 
 const router = Router()

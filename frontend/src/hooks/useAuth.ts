@@ -74,7 +74,7 @@ export function useAuth() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     
     if (!token) {
       console.log('🔑 Nenhum token encontrado')
@@ -92,9 +92,11 @@ export function useAuth() {
         
         console.log('✅ Usuário validado:', response.data)
         setUser(response.data)
+        sessionStorage.setItem('user',JSON.stringify(response.data))
       } catch (error) {
         console.error('❌ Token inválido ou expirado:', error)
-        localStorage.removeItem('token')
+       sessionStorage.removeItem('token')
+       sessionStorage.removeItem('user')
         setUser(null)
       } finally {
         setLoading(false)
@@ -107,13 +109,15 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password })
     const { token, user } = response.data
-    localStorage.setItem('token', token)
+    sessionStorage.setItem('token', token)
+    sessionStorage.setItem('token', JSON.stringify(user))
     setUser(user)
     return user
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
     setUser(null)
     navigate('/login')
   }

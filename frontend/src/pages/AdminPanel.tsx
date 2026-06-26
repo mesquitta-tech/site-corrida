@@ -57,7 +57,27 @@ export default function AdminPanel() {
   const [togglingRace, setTogglingRace] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  
+  // 🔥 VERIFICAR SE USUÁRIO ESTÁ AUTENTICADO E É ADMIN
+  useEffect(() => {
+    const token = sessionStorage.getItem('token') // ← Mudança: sessionStorage
+    const userStr = sessionStorage.getItem('user') // ← Mudança: sessionStorage
+    
+    if (!token) {
+      navigate('/login')
+      return
+    }
+    
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        if (user.role !== 'ADMIN') {
+          navigate('/dashboard')
+        }
+      } catch {
+        navigate('/login')
+      }
+    }
+  }, [navigate])
 
   // Buscar tickets
   const fetchTickets = useCallback(async () => {

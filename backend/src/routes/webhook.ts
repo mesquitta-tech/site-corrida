@@ -63,15 +63,18 @@ const router = Router()
 
 router.post('/asaas', async (req, res) => {
   try {
-    //Validação básica de token secreto (configure ASAAS_WEBHOOK_TOKEN no .env e no painel Asaas)
-    const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN
-    if (webhookToken) {
-      const receivedToken = req.headers['asaas-access-token'] as string | undefined
-      if (receivedToken !== webhookToken) {
-        console.warn('Webhook com token inválido rejeitado')
-        return res.sendStatus(401)
-      }
-    }
+    // console.log('📨 [WEBHOOK] Requisição recebida!')
+    // console.log('📨 [WEBHOOK] Headers:', req.headers)
+    // console.log('📨 [WEBHOOK] Body:', JSON.stringify(req.body, null, 2))
+    // //Validação básica de token secreto (configure ASAAS_WEBHOOK_TOKEN no .env e no painel Asaas)
+    // const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN
+    // if (webhookToken) {
+    //   const receivedToken = req.headers['asaas-access-token'] as string | undefined
+    //   if (receivedToken !== webhookToken) {
+    //     console.warn('Webhook com token inválido rejeitado')
+    //     return res.sendStatus(401)
+    //   }
+    // }
 
     const { event, payment } = req.body
     console.log('Webhook recebido:', { event, paymentId: payment?.id })

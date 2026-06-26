@@ -45,6 +45,13 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    const token = sessionStorage.getItem('token') // ← Mudança: sessionStorage
+    if (!token) {
+      navigate('/login')
+    }
+  }, [navigate])
+  
+  useEffect(() => {
     fetchMyTickets()
   }, [])
 

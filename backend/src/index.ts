@@ -145,6 +145,7 @@ import {
 
 import { apiMethodGuard } from './middlewares/methodGuard'
 import authRoutes    from './routes/auth'
+import userRoutes    from './routes/user'
 import ticketRoutes  from './routes/tickets'
 import adminRoutes   from './routes/admin'
 import webhookRoutes from './routes/webhook'
@@ -212,6 +213,7 @@ app.use('/api/auth/login', authLimiter)
 
 // ========== ROTAS ==========
 app.use('/api/auth', authRoutes)
+app.use('/api/users', userRoutes)
 app.use('/api/tickets', ticketRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/webhooks', webhookRoutes)

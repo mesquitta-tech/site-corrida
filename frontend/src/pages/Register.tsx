@@ -10,6 +10,7 @@ import FormField from '../components/forms/FormField'
 import CpfInput from '../components/forms/CpfInput'
 import Alert from '../components/ui/Alert'
 import Spinner from '../components/ui/Spinner'
+import Login from './Login'
 
 const validateCpf = (cpf: string) => {
   const c = cpf.replace(/\D/g, '')
@@ -52,9 +53,16 @@ export default function Register() {
       const { confirmPassword, ...payload } = data
       // Envia CPF sem máscara
       payload.cpf = payload.cpf.replace(/\D/g, '')
+
       const res = await api.post('/api/auth/register', payload)
-      localStorage.setItem('token', res.data.token)
-      setUser(res.data.user)
+
+      sessionStorage.setItem('token', res.data.token)
+      sessionStorage.setItem('user', JSON.stringify(res.data.user))
+      if(setUser){
+        
+        setUser(res.data.user)
+      }
+      
       navigate('/dashboard')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })

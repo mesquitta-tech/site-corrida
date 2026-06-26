@@ -26,25 +26,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Hidrata o estado do usuário ao inicializar — faz /auth/me para garantir dados corretos
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     if (!token) { setLoading(false); return }
 
     api.get('/api/auth/me')
       .then(res => setUser(res.data))
-      .catch(() => localStorage.removeItem('token'))
+      .catch(() => sessionStorage.removeItem('token'))
       .finally(() => setLoading(false))
   }, [])
 
   const login = async (email: string, password: string): Promise<AuthUser> => {
     const res = await api.post('/api/auth/login', { email, password })
     const { token, user } = res.data
-    localStorage.setItem('token', token)
+    sessionStorage.setItem('token', token)
     setUser(user)
     return user
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
     setUser(null)
     navigate('/login')
   }
